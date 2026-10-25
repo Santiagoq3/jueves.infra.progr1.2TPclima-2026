@@ -1,3 +1,13 @@
+"""
+Punto de entrada de la aplicación.
+
+Coordina la interacción entre la capa de presentación
+(vista.py) y la lógica de negocio (clima.py).
+
+Permite buscar ciudades, consultar el clima actual
+y mostrar pronósticos meteorológicos.
+"""
+
 from clima import ErrorClima, buscar_ciudades, obtener_clima, obtener_pronostico
 import vista
 
@@ -5,6 +15,13 @@ dias_de_pronostico = 4
 
 
 def consultar_y_mostrar(ciudad):
+    """
+    Consulta y muestra la información meteorológica de una ciudad.
+
+    Args:
+        ciudad: Ciudad seleccionada por el usuario.
+    """
+
     with vista.indicador_carga(f"Consultando el clima de {ciudad.nombre}..."):
         clima_actual = obtener_clima(ciudad)
         pronostico = obtener_pronostico(ciudad, dias_de_pronostico)
@@ -14,6 +31,13 @@ def consultar_y_mostrar(ciudad):
 
 
 def procesar_busqueda(texto):
+    """
+    Busca ciudades y gestiona la selección del usuario.
+
+    Args:
+        texto: Nombre ingresado para la búsqueda.
+    """
+
     with vista.indicador_carga(f"Buscando '{texto}'..."):
         ciudades = buscar_ciudades(texto)
 
@@ -27,6 +51,13 @@ def procesar_busqueda(texto):
 
 
 def main():
+    """
+    Ejecuta el bucle principal de la aplicación.
+
+    Solicita ciudades al usuario hasta que decida salir
+    o se produzca una interrupción controlada.
+    """
+
     vista.mostrar_bienvenida()
 
     while True:
