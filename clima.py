@@ -56,6 +56,7 @@ class Ciudad:
         partes = [self.nombre, self.region, self.pais]
         return ", ".join(p for p in partes if p)
 
+
 @dataclass
 class ClimaActual:
     temperatura: float
@@ -75,6 +76,7 @@ class ClimaActual:
             return "🌙"
         return emoji_de_codigo(self.codigo)
 
+
 @dataclass
 class DiaPronostico:
     fecha: date
@@ -91,49 +93,59 @@ class DiaPronostico:
     def emoji(self):
         return emoji_de_codigo(self.codigo)
 
+
 def describir_codigo(codigo):
     d, _ = codigos_wmo.get(codigo, ("Desconocido", "❓"))
     return d
+
 
 def emoji_de_codigo(codigo):
     _, e = codigos_wmo.get(codigo, ("Desconocido", "❓"))
     return e
 
+
 def _pedir_json(url, parametros):
     try:
-        r = requests.get(url, params = parametros, timeout = segundos_de_espera)
+        r = requests.get(url, params=parametros, timeout=segundos_de_espera)
         r.raise_for_status()
         return r.json()
     except requests.Timeout as error:
-        raise ErrorClima("El servidor tardó demasiado en responder.") from error
+        raise ErrorClima(
+            "El servidor tardó demasiado en responder.") from error
     except requests.ConnectionError as error:
-        raise ErrorClima("No hay conexión a internet o el servicio no responde.") from error
+        raise ErrorClima(
+            "No hay conexión a internet o el servicio no responde.") from error
     except requests.HTTPError as error:
         resp = error.response
         cod = resp.status_code if resp is not None else "?"
-        raise ErrorClima(f"El servicio respondió con un error HTTP {cod}.") from error
+        raise ErrorClima(
+            f"El servicio respondió con un error HTTP {cod}.") from error
     except requests.RequestException as error:
         raise ErrorClima(f"Falló la consulta al servicio: {error}") from error
     except ValueError as error:
-        raise ErrorClima("La respuesta del servicio no tenía un formato válido.") from error
+        raise ErrorClima(
+            "La respuesta del servicio no tenía un formato válido.") from error
 
-def buscar_ciudades(nombre, cantidad = 5):
+
+def buscar_ciudades(nombre, cantidad=5):
     nombre = nombre.strip()
     if not nombre:
         raise ErrorClima("Tenés que escribir el nombre de una ciudad.")
 
-    datos = _pedir_json(url_geocoding, {"name": nombre, "count": cantidad, "language": "es", "format": "json"})
+    datos = _pedir_json(url_geocoding, {
+                        "name": nombre, "count": cantidad, "language": "es", "format": "json"})
 
     lista = []
     for res in datos.get("results", []):
         lista.append(Ciudad(
-            nombre = res.get("name", nombre),
-            pais = res.get("country", ""),
-            region = res.get("admin1", ""),
-            latitud = float(res["latitude"]),
-            longitud = float(res["longitude"]),
+            nombre=res.get("name", nombre),
+            pais=res.get("country", ""),
+            region=res.get("admin1", ""),
+            latitud=float(res["latitude"]),
+            longitud=float(res["longitude"]),
         ))
     return lista
+
 
 def obtener_clima(ciudad):
     datos = _pedir_json(url_pronostico, {
@@ -146,17 +158,19 @@ def obtener_clima(ciudad):
     try:
         a = datos["current"]
         return ClimaActual(
-            temperatura = float(a["temperature_2m"]),
-            sensacion = float(a["apparent_temperature"]),
-            humedad = int(a["relative_humidity_2m"]),
-            viento = float(a["wind_speed_10m"]),
-            codigo = int(a["weather_code"]),
-            es_de_dia = bool(a["is_day"]),
+            temperatura=float(a["temperature_2m"]),
+            sensacion=float(a["apparent_temperature"]),
+            humedad=int(a["relative_humidity_2m"]),
+            viento=float(a["wind_speed_10m"]),
+            codigo=int(a["weather_code"]),
+            es_de_dia=bool(a["is_day"]),
         )
     except (KeyError, TypeError, ValueError) as error:
-        raise ErrorClima("La respuesta del servicio no trae el clima actual.") from error
+        raise ErrorClima(
+            "La respuesta del servicio no trae el clima actual.") from error
 
-def obtener_pronostico(ciudad, dias = 4):
+
+def obtener_pronostico(ciudad, dias=4):
     dias = max(1, min(dias, 16))
     datos = _pedir_json(url_pronostico, {
         "latitude": ciudad.latitud,
@@ -172,12 +186,13 @@ def obtener_pronostico(ciudad, dias = 4):
         for i, texto_fecha in enumerate(diario["time"]):
             prob = diario["precipitation_probability_max"][i]
             lista.append(DiaPronostico(
-                fecha = date.fromisoformat(texto_fecha),
-                minima = float(diario["temperature_2m_min"][i]),
-                maxima = float(diario["temperature_2m_max"][i]),
-                probabilidad_lluvia = int(prob or 0),
-                codigo = int(diario["weather_code"][i]),
+                fecha=date.fromisoformat(texto_fecha),
+                minima=float(diario["temperature_2m_min"][i]),
+                maxima=float(diario["temperature_2m_max"][i]),
+                probabilidad_lluvia=int(prob or 0),
+                codigo=int(diario["weather_code"][i]),
             ))
         return lista
     except (KeyError, IndexError, TypeError, ValueError) as error:
-        raise ErrorClima("La respuesta del servicio no trae el pronóstico diario.") from error
+        raise ErrorClima(
+            "La respuesta del servicio no trae el pronóstico diario.") from error

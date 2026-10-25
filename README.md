@@ -2,7 +2,7 @@
 
 - 
 - 
-- 
+- Thiago Di Gianni
 - Santiago Quipildor
 
 # 🌦️ Clima por consola
