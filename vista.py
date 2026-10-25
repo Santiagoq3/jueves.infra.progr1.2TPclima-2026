@@ -1,3 +1,14 @@
+"""
+Interfaz de usuario de consola basada en Rich.
+
+Este módulo se encarga de:
+
+- Mostrar información meteorológica.
+- Solicitar datos al usuario.
+- Renderizar tablas y paneles.
+- Mostrar mensajes de error y advertencia.
+"""
+
 from rich.console import Console
 from rich.table import Table
 from rich.prompt import IntPrompt, Prompt
@@ -12,6 +23,16 @@ dias_semana = ["Lunes", "Martes", "Miércoles",
 
 
 def color_de_temperatura(temp):
+    """
+    Determina el color asociado a una temperatura.
+
+    Args:
+        temp: Temperatura en grados Celsius.
+
+    Returns:
+        str: Nombre del color para Rich.
+    """
+
     if temp <= 0:
         return "bright_cyan"
     if temp <= 12:
@@ -24,6 +45,10 @@ def color_de_temperatura(temp):
 
 
 def mostrar_bienvenida():
+    """
+    Muestra la pantalla de bienvenida de la aplicación.
+    """
+
     titulo = Text("🌦️  CLIMA POR CONSOLA", style="bold white")
     sub = Text("Datos en vivo de Open-Meteo", style="dim")
     consola.print(Panel(Align.center(Text.assemble(
@@ -31,10 +56,27 @@ def mostrar_bienvenida():
 
 
 def pedir_ciudad():
+    """
+    Solicita al usuario el nombre de una ciudad.
+
+    Returns:
+        str: Ciudad introducida por el usuario.
+    """
+
     return Prompt.ask("\n[bold cyan]Ciudad[/] [dim](Enter vacío para salir)[/]", default="", show_default=False).strip()
 
 
 def elegir_ciudad(ciudades):
+    """
+    Permite seleccionar una ciudad cuando existen varias coincidencias.
+
+    Args:
+        ciudades: Lista de ciudades encontradas.
+
+    Returns:
+        Ciudad: Ciudad seleccionada.
+    """
+
     if len(ciudades) == 1:
         return ciudades[0]
 
@@ -58,7 +100,17 @@ def indicador_carga(mensaje):
     return consola.status(f"[cyan]{mensaje}[/]", spinner="dots")
 
 
+
+
 def mostrar_clima_actual(ciudad, clima):
+    """
+    Muestra el clima actual en formato enriquecido.
+
+    Args:
+        ciudad: Ciudad consultada.
+        clima: Datos actuales del clima.
+    """
+    
     col = color_de_temperatura(clima.temperatura)
 
     g = Table.grid(padding=(0, 2))
@@ -78,6 +130,13 @@ def mostrar_clima_actual(ciudad, clima):
 
 
 def mostrar_pronostico(pronostico):
+    """
+    Muestra una tabla con el pronóstico de los próximos días.
+
+    Args:
+        pronostico: Lista de objetos DiaPronostico.
+    """
+
     if not pronostico:
         return
 
