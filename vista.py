@@ -15,6 +15,7 @@ from rich.prompt import IntPrompt, Prompt
 from rich.panel import Panel
 from rich.align import Align
 from rich.text import Text
+from clima import Ciudad, ClimaActual, DiaPronostico
 
 consola = Console()
 
@@ -22,7 +23,7 @@ dias_semana = ["Lunes", "Martes", "Miércoles",
                "Jueves", "Viernes", "Sábado", "Domingo"]
 
 
-def color_de_temperatura(temp):
+def color_de_temperatura(temp: float) -> str:
     """
     Determina el color asociado a una temperatura.
 
@@ -44,7 +45,7 @@ def color_de_temperatura(temp):
     return "red"
 
 
-def mostrar_bienvenida():
+def mostrar_bienvenida() -> None:
     """
     Muestra la pantalla de bienvenida de la aplicación.
     """
@@ -55,7 +56,7 @@ def mostrar_bienvenida():
         titulo, "\n", sub)), border_style="blue", padding=(1, 4)))
 
 
-def pedir_ciudad():
+def pedir_ciudad() -> str:
     """
     Solicita al usuario el nombre de una ciudad.
 
@@ -66,7 +67,7 @@ def pedir_ciudad():
     return Prompt.ask("\n[bold cyan]Ciudad[/] [dim](Enter vacío para salir)[/]", default="", show_default=False).strip()
 
 
-def elegir_ciudad(ciudades):
+def elegir_ciudad(ciudades: list) -> Ciudad:
     """
     Permite seleccionar una ciudad cuando existen varias coincidencias.
 
@@ -96,13 +97,11 @@ def elegir_ciudad(ciudades):
     return ciudades[op - 1]
 
 
-def indicador_carga(mensaje):
+def indicador_carga(mensaje: str):
     return consola.status(f"[cyan]{mensaje}[/]", spinner="dots")
 
 
-
-
-def mostrar_clima_actual(ciudad, clima):
+def mostrar_clima_actual(ciudad: Ciudad, clima: ClimaActual) -> None:
     """
     Muestra el clima actual en formato enriquecido.
 
@@ -129,7 +128,7 @@ def mostrar_clima_actual(ciudad, clima):
                   subtitle="[dim]ahora mismo[/]", border_style=col, padding=(1, 3)))
 
 
-def mostrar_pronostico(pronostico):
+def mostrar_pronostico(pronostico: list) -> None:
     """
     Muestra una tabla con el pronóstico de los próximos días.
 
@@ -159,13 +158,13 @@ def mostrar_pronostico(pronostico):
     consola.print(t)
 
 
-def mostrar_error(mensaje):
+def mostrar_error(mensaje: str) -> None:
     consola.print(f"\n[bold red]✖ {mensaje}[/]")
 
 
-def mostrar_aviso(mensaje):
+def mostrar_aviso(mensaje: str) -> None:
     consola.print(f"\n[yellow]⚠ {mensaje}[/]")
 
 
-def mostrar_despedida():
+def mostrar_despedida() -> None:
     consola.print("\n[bold blue]¡Hasta la próxima! 👋[/]\n")

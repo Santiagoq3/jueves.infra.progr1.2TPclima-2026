@@ -8,13 +8,13 @@ Permite buscar ciudades, consultar el clima actual
 y mostrar pronósticos meteorológicos.
 """
 
-from clima import ErrorClima, buscar_ciudades, obtener_clima, obtener_pronostico
+from clima import ErrorClima, buscar_ciudades, obtener_clima, obtener_pronostico, Ciudad
 import vista
 
 dias_de_pronostico = 4
 
 
-def consultar_y_mostrar(ciudad):
+def consultar_y_mostrar(ciudad: Ciudad) -> None:
     """
     Consulta y muestra la información meteorológica de una ciudad.
 
@@ -30,7 +30,7 @@ def consultar_y_mostrar(ciudad):
     vista.mostrar_pronostico(pronostico)
 
 
-def procesar_busqueda(texto):
+def procesar_busqueda(texto: str) -> None:
     """
     Busca ciudades y gestiona la selección del usuario.
 
@@ -50,7 +50,7 @@ def procesar_busqueda(texto):
     consultar_y_mostrar(c)
 
 
-def main():
+def main() -> None:
     """
     Ejecuta el bucle principal de la aplicación.
 

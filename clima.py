@@ -149,7 +149,7 @@ class DiaPronostico:
         return emoji_de_codigo(self.codigo)
 
 
-def describir_codigo(codigo):
+def describir_codigo(codigo: int) -> str:
     """
     Convierte un código WMO en una descripción legible.
 
@@ -163,7 +163,7 @@ def describir_codigo(codigo):
     return d
 
 
-def emoji_de_codigo(codigo):
+def emoji_de_codigo(codigo: int) -> str:
     """
     Convierte un código WMO en un emoji representativo.
 
@@ -177,7 +177,7 @@ def emoji_de_codigo(codigo):
     return e
 
 
-def _pedir_json(url, parametros):
+def _pedir_json(url: str, parametros: dict) -> dict:
     """
     Realiza una petición HTTP y devuelve la respuesta JSON.
 
@@ -214,7 +214,7 @@ def _pedir_json(url, parametros):
             "La respuesta del servicio no tenía un formato válido.") from error
 
 
-def buscar_ciudades(nombre, cantidad=5):
+def buscar_ciudades(nombre: str, cantidad: int = 5) -> list['Ciudad']:
     """
     Busca ciudades por nombre utilizando la API de Open-Meteo.
 
@@ -248,7 +248,7 @@ def buscar_ciudades(nombre, cantidad=5):
     return lista
 
 
-def obtener_clima(ciudad):
+def obtener_clima(ciudad: 'Ciudad') -> 'ClimaActual':
     """
     Obtiene el clima actual para una ciudad.
 
@@ -284,7 +284,7 @@ def obtener_clima(ciudad):
             "La respuesta del servicio no trae el clima actual.") from error
 
 
-def obtener_pronostico(ciudad, dias=4):
+def obtener_pronostico(ciudad: 'Ciudad', dias: int = 4) -> list['DiaPronostico']:
     """
     Obtiene el pronóstico diario de una ciudad.
 

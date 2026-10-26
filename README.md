@@ -1,6 +1,6 @@
 ## 👥 Integrantes
 
-- 
+- Damian Casal
 - Agustin Maldonado
 - Thiago Di Gianni
 - Santiago Quipildor
