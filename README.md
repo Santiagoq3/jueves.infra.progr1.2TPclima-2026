@@ -1,7 +1,7 @@
 ## 👥 Integrantes
 
 - 
-- 
+- Agustin Maldonado
 - Thiago Di Gianni
 - Santiago Quipildor
 
