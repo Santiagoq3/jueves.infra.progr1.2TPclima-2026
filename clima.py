@@ -1,3 +1,16 @@
+"""
+Funciones y modelos para consultar información meteorológica utilizando
+la API pública de Open-Meteo.
+
+Este módulo permite:
+
+- Buscar ciudades mediante geocodificación.
+- Obtener el clima actual.
+- Obtener el pronóstico diario.
+- Traducir códigos meteorológicos WMO a descripciones legibles.
+- Gestionar errores de comunicación con los servicios externos.
+"""
+
 from dataclasses import dataclass
 import requests
 from datetime import date
@@ -40,11 +53,23 @@ codigos_wmo = {
 
 
 class ErrorClima(Exception):
+    """Excepción personalizada para errores relacionados con el clima."""
     pass
 
 
 @dataclass
 class Ciudad:
+    """
+    Representa una ciudad obtenida desde el servicio de geocodificación.
+
+    Attributes:
+        nombre: Nombre de la ciudad.
+        pais: País al que pertenece.
+        region: Provincia, estado o región administrativa.
+        latitud: Latitud geográfica.
+        longitud: Longitud geográfica.
+    """
+
     nombre: str
     pais: str
     region: str
@@ -53,12 +78,31 @@ class Ciudad:
 
     @property
     def etiqueta(self):
+        """
+        Devuelve una representación legible de la ubicación.
+
+        Returns:
+            str: Cadena formada por ciudad, región y país.
+        """
+
         partes = [self.nombre, self.region, self.pais]
         return ", ".join(p for p in partes if p)
 
 
 @dataclass
 class ClimaActual:
+    """
+    Información meteorológica actual de una ciudad.
+
+    Attributes:
+        temperatura: Temperatura actual en °C.
+        sensacion: Sensación térmica en °C.
+        humedad: Humedad relativa (%).
+        viento: Velocidad del viento (km/h).
+        codigo: Código meteorológico WMO.
+        es_de_dia: Indica si es de día.
+    """
+
     temperatura: float
     sensacion: float
     humedad: int
@@ -79,6 +123,17 @@ class ClimaActual:
 
 @dataclass
 class DiaPronostico:
+    """
+    Representa el pronóstico meteorológico de un día.
+
+    Attributes:
+        fecha: Fecha del pronóstico.
+        minima: Temperatura mínima prevista.
+        maxima: Temperatura máxima prevista.
+        probabilidad_lluvia: Probabilidad máxima de precipitaciones.
+        codigo: Código meteorológico WMO.
+    """
+
     fecha: date
     minima: float
     maxima: float
@@ -95,16 +150,48 @@ class DiaPronostico:
 
 
 def describir_codigo(codigo):
+    """
+    Convierte un código WMO en una descripción legible.
+
+    Args:
+        codigo: Código meteorológico WMO.
+
+    Returns:
+        str: Descripción asociada al código.
+    """
     d, _ = codigos_wmo.get(codigo, ("Desconocido", "❓"))
     return d
 
 
 def emoji_de_codigo(codigo):
+    """
+    Convierte un código WMO en un emoji representativo.
+
+    Args:
+        codigo: Código meteorológico WMO.
+
+    Returns:
+        str: Emoji asociado al código.
+    """
     _, e = codigos_wmo.get(codigo, ("Desconocido", "❓"))
     return e
 
 
 def _pedir_json(url, parametros):
+    """
+    Realiza una petición HTTP y devuelve la respuesta JSON.
+
+    Args:
+        url: URL del servicio.
+        parametros: Parámetros enviados en la petición.
+
+    Returns:
+        dict: Respuesta JSON del servicio.
+
+    Raises:
+        ErrorClima: Si ocurre un problema de conexión,
+            tiempo de espera o formato de respuesta.
+    """
     try:
         r = requests.get(url, params=parametros, timeout=segundos_de_espera)
         r.raise_for_status()
@@ -128,6 +215,20 @@ def _pedir_json(url, parametros):
 
 
 def buscar_ciudades(nombre, cantidad=5):
+    """
+    Busca ciudades por nombre utilizando la API de Open-Meteo.
+
+    Args:
+        nombre: Nombre de la ciudad a buscar.
+        cantidad: Cantidad máxima de resultados.
+
+    Returns:
+        list[Ciudad]: Lista de ciudades encontradas.
+
+    Raises:
+        ErrorClima: Si el nombre está vacío o falla la consulta.
+    """
+    
     nombre = nombre.strip()
     if not nombre:
         raise ErrorClima("Tenés que escribir el nombre de una ciudad.")
@@ -148,6 +249,19 @@ def buscar_ciudades(nombre, cantidad=5):
 
 
 def obtener_clima(ciudad):
+    """
+    Obtiene el clima actual para una ciudad.
+
+    Args:
+        ciudad: Instancia de Ciudad.
+
+    Returns:
+        ClimaActual: Datos meteorológicos actuales.
+
+    Raises:
+        ErrorClima: Si la respuesta del servicio es inválida.
+    """
+    
     datos = _pedir_json(url_pronostico, {
         "latitude": ciudad.latitud,
         "longitude": ciudad.longitud,
@@ -171,6 +285,20 @@ def obtener_clima(ciudad):
 
 
 def obtener_pronostico(ciudad, dias=4):
+    """
+    Obtiene el pronóstico diario de una ciudad.
+
+    Args:
+        ciudad: Ciudad a consultar.
+        dias: Cantidad de días de pronóstico.
+
+    Returns:
+        list[DiaPronostico]: Pronóstico diario.
+
+    Raises:
+        ErrorClima: Si los datos recibidos son inválidos.
+    """
+    
     dias = max(1, min(dias, 16))
     datos = _pedir_json(url_pronostico, {
         "latitude": ciudad.latitud,
